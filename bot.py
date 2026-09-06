@@ -2,7 +2,7 @@ import os
 import threading
 from flask import Flask
 import telebot
-from deep_translator import MyMemoryTranslator
+from deep_translator import GoogleTranslator
 
 app = Flask(__name__)
 
@@ -21,11 +21,16 @@ def send_welcome(message):
 def translate_text(message):
     text = message.text
     try:
-        translated = MyMemoryTranslator(source='pt', target='ru').translate(text)
-        if not translated or translated.lower() == text.lower():
-            translated = MyMemoryTranslator(source='ru', target='pt').translate(text)
+        # Автоопределение языка и перевод через Google
+        translated = GoogleTranslator(source='auto', target='pt').translate(text)
+        
+        # Если исходный текст уже на португальском, переводим на русский
+        if translated.lower().strip() == text.lower().strip():
+            translated = GoogleTranslator(source='auto', target='ru').translate(text)
+            
         bot.reply_to(message, translated)
-    except Exception:
+    except Exception as e:
+        print(f"Translation error: {e}")
         bot.reply_to(message, "Произошла ошибка при переводе. Попробуй ещё раз.")
 
 def run_bot():
