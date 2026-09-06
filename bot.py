@@ -2,7 +2,7 @@ import os
 import threading
 from flask import Flask
 import telebot
-from deep_translator import GoogleTranslator
+from deep_translator import YandexTranslator
 
 app = Flask(__name__)
 
@@ -13,7 +13,7 @@ def home():
 TOKEN = os.environ.get("BOT_TOKEN")
 bot = telebot.TeleBot(TOKEN)
 
-# Проверка на кириллицу
+# Проверка на наличие кириллицы
 def is_russian(text):
     return any('а' <= char.lower() <= 'я' for char in text)
 
@@ -26,11 +26,11 @@ def translate_text(message):
     text = message.text
     try:
         if is_russian(text):
-            # Русские буквы есть -> переводим на португальский
-            translated = GoogleTranslator(source='ru', target='pt').translate(text)
+            # Русские буквы -> переводим на португальский
+            translated = YandexTranslator(source='ru', target='pt').translate(text)
         else:
-            # Текст на латинице -> переводим на русский
-            translated = GoogleTranslator(source='pt', target='ru').translate(text)
+            # Латиница -> переводим на русский
+            translated = YandexTranslator(source='pt', target='ru').translate(text)
             
         bot.reply_to(message, translated)
     except Exception as e:
