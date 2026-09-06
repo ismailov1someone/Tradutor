@@ -13,6 +13,10 @@ def home():
 TOKEN = os.environ.get("BOT_TOKEN")
 bot = telebot.TeleBot(TOKEN)
 
+# Проверка на кириллицу
+def is_russian(text):
+    return any('а' <= char.lower() <= 'я' for char in text)
+
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     bot.reply_to(message, "Привет! Отправь мне текст на русском или португальском, и я его переведу.")
@@ -21,12 +25,12 @@ def send_welcome(message):
 def translate_text(message):
     text = message.text
     try:
-        # Автоопределение языка и перевод через Google
-        translated = GoogleTranslator(source='auto', target='pt').translate(text)
-        
-        # Если исходный текст уже на португальском, переводим на русский
-        if translated.lower().strip() == text.lower().strip():
-            translated = GoogleTranslator(source='auto', target='ru').translate(text)
+        if is_russian(text):
+            # Русские буквы есть -> переводим на португальский
+            translated = GoogleTranslator(source='ru', target='pt').translate(text)
+        else:
+            # Текст на латинице -> переводим на русский
+            translated = GoogleTranslator(source='pt', target='ru').translate(text)
             
         bot.reply_to(message, translated)
     except Exception as e:
