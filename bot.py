@@ -1,6 +1,14 @@
 import os
+import threading
+from flask import Flask
 import telebot
 from deep_translator import MyMemoryTranslator
+
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return "Bot is running!"
 
 TOKEN = os.environ.get("BOT_TOKEN")
 bot = telebot.TeleBot(TOKEN)
@@ -20,4 +28,10 @@ def translate_text(message):
     except Exception:
         bot.reply_to(message, "Произошла ошибка при переводе. Попробуй ещё раз.")
 
-bot.infinity_polling()
+def run_bot():
+    bot.infinity_polling()
+
+if __name__ == "__main__":
+    threading.Thread(target=run_bot, daemon=True).start()
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
